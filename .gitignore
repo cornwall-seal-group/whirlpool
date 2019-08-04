@@ -1,0 +1,5 @@
+node_modules/
+input/
+output/
+extracted-images/
+.DS_Store
