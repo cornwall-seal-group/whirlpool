@@ -17,7 +17,7 @@
   "scripts": {
     "find-title-slides": "node -e 'require(\"./images.js\").findTitleSlides()'",
     "extract-text": "node -e 'require(\"./images.js\").extractSlideText()'",
-    "parse-ppt": "node -e 'require(\"./parse-ppt.js\").processPPTs()'",
+    "process-ppts": "node -e 'require(\"./parse-ppt.js\").processPPTs()'",
     "rename-slides": "node -e 'require(\"./images.js\").renameSlides()'",
     "extract-seals": "node -e 'require(\"./images.js\").extractSealsFromSlides()'"
   },

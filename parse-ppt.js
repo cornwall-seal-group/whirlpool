@@ -1,26 +1,33 @@
 const fs = require("fs");
 const rimraf = require("rimraf");
 const execSync = require("child_process").execSync;
-
+const imageScript = require("./images.js");
 const outputDir = "./output/";
 
 const toProcessDir = "./input/";
-
-rimraf.sync(outputDir);
-fs.mkdirSync(outputDir);
+const processedDir = "./processed/";
 
 const processPPTs = () => {
-  fs.readdir(toProcessDir, function(err, files) {
-    files.forEach(function(file, index) {
-      let filename = file.split(".")[0];
-      processPPT(filename);
-    });
+  const files = fs.readdirSync(toProcessDir);
+  files.forEach(function(file) {
+    let filename = file.split(".")[0];
+    processPPT(filename);
   });
 };
 
 const processPPT = filename => {
+  rimraf.sync(outputDir);
+  fs.mkdirSync(outputDir);
   zip(filename);
   unzip(filename);
+
+  imageScript.renameSlides();
+  imageScript.extractSealsFromSlides();
+
+  fs.renameSync(
+    toProcessDir + filename + ".pptx",
+    processedDir + filename + ".pptx"
+  );
 };
 
 const zip = filename => {

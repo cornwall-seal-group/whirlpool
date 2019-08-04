@@ -1,12 +1,6 @@
 /*
 Images Script
 
-This script was originally created based on a PPT which had a title slide with
-the name of the seal. All following slides then contained images of that seal.
-
-This scipt would use the different functions to extract all the images then
-work out which slides were for which seal based on the location of the title slides.
-
 */
 
 const fs = require("fs");
@@ -55,18 +49,14 @@ const convertNumber = number => {
 
 // Loop through all the slide files
 const renameSlides = () => {
-  fs.readdir(baseSlideDir, function(err, files) {
-    files.forEach(function(file, index) {
-      const formattedNum = convertNumberInFile(file);
-      const ext = "xml";
-      fs.rename(
-        baseSlideDir + file,
-        baseSlideDir + "slide" + formattedNum + "." + ext,
-        function(err) {
-          if (err) console.log("ERROR: " + err);
-        }
-      );
-    });
+  const files = fs.readdirSync(baseSlideDir);
+  files.forEach(function(file, index) {
+    const formattedNum = convertNumberInFile(file);
+    const ext = "xml";
+    fs.renameSync(
+      baseSlideDir + file,
+      baseSlideDir + "slide" + formattedNum + "." + ext
+    );
   });
 };
 
@@ -108,7 +98,15 @@ const extractSlideText = () => {
   });
 };
 
-const knownTitles = ["re_ids", "new_ids", "new_matches", "no_ids", "taggies"];
+const knownTitles = [
+  "re_ids",
+  "new_ids",
+  "new_matches",
+  "no_ids",
+  "taggies",
+  "netties",
+  "entangled"
+];
 
 // Loop through all the slide files and output the title slides with slide number
 const findTitleSlides = () => {
@@ -125,24 +123,25 @@ const findTitleSlides = () => {
           // Only accept slides that have 1 string of text - not an essay slide!
           if (data.match(regex).length === 1) {
             const foundTitle = regex.exec(data)[1];
-            const title = foundTitle.toLowerCase().replace(" ", "_");
+            const title = foundTitle
+              .toLowerCase()
+              .replace(/\s+/g, "_")
+              .replace(/-/g, "_");
 
-            if (knownTitles.includes(title)) {
-              if (Object.keys(previousTitle).length > 0) {
-                console.warn(
-                  previousTitle.title,
-                  ": from",
-                  previousTitle.index + 1,
-                  "to",
-                  index - 1
-                );
-              }
-              previousTitle = {
-                title,
-                index,
-                file
-              };
+            if (Object.keys(previousTitle).length > 0) {
+              console.warn(
+                previousTitle.title,
+                ": from",
+                previousTitle.index + 1,
+                "to",
+                index - 1
+              );
             }
+            previousTitle = {
+              title,
+              index,
+              file
+            };
           }
         } catch (e) {}
       }
@@ -174,18 +173,16 @@ const extractSealsFromSlides = () => {
           const regex = new RegExp(/<a:t>([\s\S]*?)<\/a:t>/g);
           if (data.match(regex).length === 1) {
             const foundTitle = regex.exec(data)[1];
-            const title = foundTitle.toLowerCase().replace(" ", "_");
+            const title = foundTitle.toLowerCase().replace(/\s+/g, "_");
 
-            if (knownTitles.includes(title)) {
-              if (Object.keys(previousTitle).length > 0) {
-                categories.push({
-                  title: previousTitle.title,
-                  start: previousTitle.index + 1,
-                  end: index
-                });
-              }
-              previousTitle = { title, index, file };
+            if (Object.keys(previousTitle).length > 0) {
+              categories.push({
+                title: previousTitle.title,
+                start: previousTitle.index + 1,
+                end: index
+              });
             }
+            previousTitle = { title, index, file };
           }
         } catch (e) {}
       }
@@ -232,11 +229,9 @@ const parseNewSealSlides = ({ start, end }) => {
     if (!fs.existsSync(folder)) {
       fs.mkdirSync(folder);
     } else {
-      fs.readdirSync(folder, (err, files) => {
-        index = files.length + 1;
-      });
+      const files = fs.readdirSync(folder);
+      index = files.length + 1;
     }
-    console.log(index);
 
     parseSlideMetaForImages({ folder, id: "new", i, index });
   }
@@ -252,7 +247,9 @@ const parseKnownSealSlides = ({ start, end }) => {
       "utf8"
     );
 
-    const sealNameRegex = new RegExp(/<a:t>([A-Z]*[0-9]*?)(\s)?<\/a:t>/g);
+    //const sealNameRegex = new RegExp(/<a:t>([A-Z]*[0-9]*?)(\s)?<\/a:t>/g);
+    //const sealNameRegex = new RegExp(/<a:t>((\s)?([A-Z]*(\d+)?)(\s)?)/g);
+    const sealNameRegex = new RegExp(/<a:t>((\s)?([A-Z]{1,5}[\d]{1,5})(\s)?)/g);
     const seal = sealNameRegex.exec(slide)[1].trim();
     console.log(i, seal);
 
@@ -261,9 +258,8 @@ const parseKnownSealSlides = ({ start, end }) => {
     if (!fs.existsSync(folder)) {
       fs.mkdirSync(folder);
     } else {
-      fs.readdirSync(folder, (err, files) => {
-        index = files.length;
-      });
+      const files = fs.readdirSync(folder);
+      index = files.length + 1;
     }
 
     parseSlideMetaForImages({ folder, id: seal, i, index });
