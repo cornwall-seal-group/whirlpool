@@ -1,12 +1,10 @@
 # Catalogue Parser
 
-This project parses a PPT in the `input/` folder and moves the image found into the correct directories.
+This project parses PPTs in the `input/` folder and moves the image found into the correct directories.
 
 It works by looking for the known title slides; either:
 
-`const knownTitles = [ "re_ids", "new_ids", "new_matches", "no_ids", "taggies", "netties", "entangled" ];`
-
-and puts the subsequent images in the correct folders.
+`"re_ids", "new_ids", "new_matches", "no_ids", "taggies", "netties", "entangled"`
 
 ## Process
 
