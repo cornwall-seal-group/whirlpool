@@ -2,24 +2,37 @@
   "name": "catalogue-parser",
   "version": "1.0.0",
   "description": "Exports images of seals from converted PPTX slides",
-  "main": "images.js",
-  "dependencies": {
-    "jimp": "^0.6.4"
+  "main": "src/index.js",
+  "scripts": {
+    "start": "export NODE_ENV=dev && nodemon src/index.js"
   },
-  "devDependencies": {
+  "dependencies": {
+    "bcrypt": "^3.0.0",
+    "boom": "^7.2.0",
+    "config": "^2.0.1",
+    "email-validator": "^2.0.4",
+    "hapi": "^17.5.4",
+    "hapi-swagger": "^9.1.1",
+    "inert": "^5.1.0",
+    "joi": "^13.6.0",
+    "mongoose": "^5.2.12",
+    "nodemon": "^1.18.4",
+    "vision": "^5.4.0",
+    "rimraf": "^2.6.2",
+    "xml2json": "^0.11.2",
     "fs": "0.0.1-security",
     "fs-extra": "^6.0.1",
     "path": "^0.12.7",
-    "process": "^0.11.10",
-    "rimraf": "^2.6.2",
-    "xml2json": "^0.11.2"
+    "process": "^0.11.10"
   },
-  "scripts": {
-    "find-title-slides": "node -e 'require(\"./images.js\").findTitleSlides()'",
-    "extract-text": "node -e 'require(\"./images.js\").extractSlideText()'",
-    "process-ppts": "node -e 'require(\"./parse-ppt.js\").processPPTs()'",
-    "rename-slides": "node -e 'require(\"./images.js\").renameSlides()'",
-    "extract-seals": "node -e 'require(\"./images.js\").extractSealsFromSlides()'"
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-http": "^4.2.0",
+    "eslint": "^5.6.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "mocha": "^5.2.0",
+    "nyc": "^13.0.1"
   },
   "author": "Richard Frost",
   "license": "ISC"
