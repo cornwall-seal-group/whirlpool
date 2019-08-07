@@ -1,0 +1,7 @@
+{
+    "pptInputDir": "./input/",
+    "pptProcessedDir": "./processed/",
+    "pptOutputDir": "./output/",
+    "pptProcessingDir": "./processing/",
+    "Port": 4010
+}
