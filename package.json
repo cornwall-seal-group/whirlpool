@@ -4,7 +4,8 @@
   "description": "Exports images of seals from converted PPTX slides",
   "main": "src/index.js",
   "scripts": {
-    "start": "export NODE_ENV=dev && nodemon src/index.js"
+    "start": "export NODE_ENV=dev && nodemon src/index.js",
+    "process-mappings": "node -e 'require(\"./mappings.js\").processMappings()'"
   },
   "dependencies": {
     "bcrypt": "^3.0.0",
