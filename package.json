@@ -1,5 +1,5 @@
 {
-  "name": "catalogue-parser",
+  "name": "album-parser",
   "version": "1.0.0",
   "description": "Exports images of seals from converted PPTX slides",
   "main": "src/index.js",
