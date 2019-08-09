@@ -1,4 +1,4 @@
-# Catalogue Parser
+# Album Parser
 
 This project parses PPTs in the `input/` folder and moves the image found into the correct directories.
 
