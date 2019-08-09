@@ -1,8 +1,7 @@
-/* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 const Boom = require('boom');
 const ProcessPPTS = require('../utils/process-ppts');
 
-const processCatalogue = request => {
+const processAlbum = request => {
     const { payload } = request;
     const { file } = payload;
     // Process PPT
@@ -10,5 +9,5 @@ const processCatalogue = request => {
 };
 
 module.exports = {
-    processCatalogue
+    processAlbum
 };
