@@ -2,14 +2,12 @@
 Images Script
 
 */
-
+const SealMappings = require('../../seal-mappings/mappings.json');
+const config = require('config');
 const fs = require('fs');
 const parser = require('xml2json');
 
-const baseSlideDir = './output/ppt/slides/';
-const baseImageDir = './output/ppt/media/';
-
-const imagesDir = './slides/formatted-images/';
+const baseSlideDir = `${config.pptProcessingDir}ppt/slides/`;
 const imageOutputDir = './extracted-images/';
 
 const convertNumber = number => {
@@ -25,19 +23,6 @@ const convertNumber = number => {
     }
 
     return formattedNum;
-};
-
-// Loop through all the image files
-const renameImages = () => {
-    fs.readdir(baseImageDir, (err, files) => {
-        files.forEach((file, index) => {
-            const formattedNum = convertNumberInFile(file);
-
-            fs.createReadStream(baseImageDir + file).pipe(
-                fs.createWriteStream(`${imagesDir}image${formattedNum}.${ext}`)
-            );
-        });
-    });
 };
 
 // Loop through all the slide files - this will output all text; some are maybe wrong
@@ -62,7 +47,7 @@ const extractSlideText = () => {
     });
 };
 
-const knownTitles = ['re_ids', 'new_ids', 'new_matches', 'no_ids', 'taggies', 'netties', 'entangled'];
+const knownTitles = ['re_ids', 'new_ids', 'new_id', 'new_matches', 'no_ids', 'taggies', 'netties', 'entangled'];
 
 // Loop through all the slide files and output the title slides with slide number
 const findTitleSlides = () => {
@@ -117,7 +102,10 @@ const extractSealsFromSlides = () => {
                     const regex = new RegExp(/<a:t>([\s\S]*?)<\/a:t>/g);
                     if (data.match(regex).length === 1) {
                         const foundTitle = regex.exec(data)[1];
-                        const title = foundTitle.toLowerCase().replace(/\s+/g, '_');
+                        const title = foundTitle
+                            .toLowerCase()
+                            .replace(/\s+/g, '_')
+                            .replace(/-/g, '_');
 
                         if (Object.keys(previousTitle).length > 0) {
                             categories.push({
@@ -146,19 +134,16 @@ const extractSealsFromSlides = () => {
 };
 
 const getImagesForTheCategory = ({ title, start, end }) => {
-    // re_ids = create folder per seal if not already exists and add photos to folder
-    // new_ids = create folder per seal if not already exists and add photos to folder
-    // taggies = create folder per seal if not already exists and add photos to folder
-    // no_ids = create folder for unknowns, put all images in folder
-
+    // no_ids = create folder for unknowns, put all images in 'new-ids' folder for future matching
     if (title === 'no_ids') {
         parseNewSealSlides({ start, end });
     } else if (knownTitles.includes(title)) {
+        // re_ids, new_ids, taggies, netties, new_matches
+
         // Find the seal name in the slide
         // Create a folder for that seal if not already exists
         // Go through the images in the slide and add to the folder
 
-        // TODO check name found correctly in slide
         parseKnownSealSlides({ start, end });
     } else {
         console.warn('Unknown title type', title, ', ignoring');
@@ -191,19 +176,28 @@ const parseKnownSealSlides = ({ start, end }) => {
         // const sealNameRegex = new RegExp(/<a:t>([A-Z]*[0-9]*?)(\s)?<\/a:t>/g);
         // const sealNameRegex = new RegExp(/<a:t>((\s)?([A-Z]*(\d+)?)(\s)?)/g);
         const sealNameRegex = new RegExp(/<a:t>((\s)?([A-Z]{1,5}[\d]{1,5})(\s)?)/g);
-        const seal = sealNameRegex.exec(slide)[1].trim();
-        console.log(i, seal);
+        const sealNameInSlide = sealNameRegex.exec(slide);
+        if (sealNameInSlide) {
+            const seal = sealNameInSlide[1].trim();
+            console.log('Slide', i, 'Seal name', seal);
+            let masterSealName = seal;
+            const mappedSeal = SealMappings[seal];
+            if (mappedSeal && mappedSeal !== masterSealName) {
+                masterSealName = SealMappings[seal];
+                console.log('For', seal, 'master seal ID is actually', masterSealName);
+            }
 
-        // Create a folder for the seal
-        const folder = imageOutputDir + seal;
-        if (!fs.existsSync(folder)) {
-            fs.mkdirSync(folder);
-        } else {
-            const files = fs.readdirSync(folder);
-            index = files.length + 1;
+            // Create a folder for the seal
+            const folder = imageOutputDir + masterSealName;
+            if (!fs.existsSync(folder)) {
+                fs.mkdirSync(folder);
+            } else {
+                const files = fs.readdirSync(folder);
+                index = files.length + 1;
+            }
+
+            parseSlideMetaForImages({ folder, id: masterSealName, i, index });
         }
-
-        parseSlideMetaForImages({ folder, id: seal, i, index });
     }
 };
 
@@ -216,7 +210,7 @@ const parseSlideMetaForImages = ({ folder, id, i, index }) => {
             regex.lastIndex++;
         }
         const image = m[0].replace('Target="../media/', '').replace('"', '');
-        const file = `./output/ppt/media/${image}`;
+        const file = `${config.pptProcessingDir}ppt/media/${image}`;
 
         if (fs.existsSync(file)) {
             const extDot = file.lastIndexOf('.');
@@ -231,7 +225,6 @@ const parseSlideMetaForImages = ({ folder, id, i, index }) => {
 };
 
 module.exports = {
-    renameImages,
     extractSlideText,
     extractSealsFromSlides,
     findTitleSlides
