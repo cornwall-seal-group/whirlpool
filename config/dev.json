@@ -3,5 +3,7 @@
     "pptProcessedDir": "./processed/",
     "pptOutputDir": "./output/",
     "pptProcessingDir": "./processing/",
-    "Port": 4010
+    "sealImagesOutputDir": "./extracted-images/",
+    "Port": 4010,
+    "syncMinio": false
 }
