@@ -5,7 +5,7 @@ const rimraf = require('rimraf');
 const { execSync } = require('child_process');
 const processImages = require('./process-images.js');
 
-const baseSlideDir = `./${config.pptProcessingDir}/ppt/slides/`;
+const baseSlideDir = `${config.pptProcessingDir}ppt/slides/`;
 
 const convertNumberInFile = file => {
     const number = file.substr(5).split('.')[0];
@@ -35,11 +35,13 @@ const renameSlides = () => {
 const processPPTs = file => {
     // Save file to pptInputDir
     const filename = new Date().getTime();
-    fs.writeFileSync(`${config.pptInputDir}/${filename}.pptx`, file);
+    console.log('New filename', filename);
+    fs.writeFileSync(`${config.pptInputDir}${filename}.pptx`, file);
 
     const files = fs.readdirSync(config.pptInputDir);
     files.forEach(savedFile => {
         const name = savedFile.split('.')[0];
+        console.log('About to process', name);
         processPPT(name);
     });
 };
@@ -60,10 +62,12 @@ const processPPT = filename => {
 };
 
 const zip = filename => {
-    execSync(`cd ${config.pptInputDir} && cp '${filename}.pptx' .${config.pptProcessingDir}ppt.zip`);
+    console.log('About to zip', filename);
+    execSync(`cd ${config.pptInputDir} && cp '${filename}.pptx' .${config.pptProcessingDir}${filename}.zip`);
 };
 
 const unzip = filename => {
+    console.log('About to unzip', filename);
     execSync(`cd ${config.pptProcessingDir} && unzip ${filename}.zip`);
 };
 

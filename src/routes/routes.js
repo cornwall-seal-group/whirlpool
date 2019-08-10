@@ -15,6 +15,6 @@ module.exports = [
             }
         },
 
-        handler: AblumController.processCatalogue
+        handler: AblumController.processAlbum
     }
 ];
