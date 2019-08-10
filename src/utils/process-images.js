@@ -9,7 +9,7 @@ const parser = require('xml2json');
 const findDuplicateFiles = require('find-duplicate-files');
 const path = require('path');
 const baseSlideDir = `${config.pptProcessingDir}ppt/slides/`;
-const imageOutputDir = './extracted-images/';
+const imageOutputDir = config.sealImagesOutputDir;
 
 const knownTitles = ['re_ids', 'new_ids', 'new_id', 'new_matches', 'no_ids', 'taggies', 'netties', 'entangled'];
 
@@ -179,7 +179,11 @@ const removeDuplicateImagesFromFolders = () => {
     });
 };
 
-const reSyncMinio = () => {};
+const reSyncMinio = () => {
+    if (config.syncMinio) {
+        execSync(`~/./mc mirror ${config.sealImagesOutputDir} myminio`);
+    }
+};
 
 const getImagesForTheCategory = ({ title, start, end }) => {
     // no_ids = create folder for unknowns, put all images in 'new-ids' folder for future matching
