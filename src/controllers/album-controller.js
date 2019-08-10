@@ -5,7 +5,7 @@ const processAlbum = request => {
     const { payload } = request;
     const { file } = payload;
     // Process PPT
-    ProcessPPTS.processPPTs(file);
+    return ProcessPPTS.processPPT(file);
 };
 
 module.exports = {

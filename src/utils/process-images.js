@@ -6,10 +6,15 @@ const SealMappings = require('../../seal-mappings/mappings.json');
 const config = require('config');
 const fs = require('fs');
 const parser = require('xml2json');
-
+const findDuplicateFiles = require('find-duplicate-files');
+const path = require('path');
 const baseSlideDir = `${config.pptProcessingDir}ppt/slides/`;
 const imageOutputDir = './extracted-images/';
 
+const knownTitles = ['re_ids', 'new_ids', 'new_id', 'new_matches', 'no_ids', 'taggies', 'netties', 'entangled'];
+
+let foundSeals = [];
+let slideSeals = {};
 const convertNumber = number => {
     number = number.toString();
     let formattedNum = number;
@@ -46,8 +51,6 @@ const extractSlideText = () => {
         });
     });
 };
-
-const knownTitles = ['re_ids', 'new_ids', 'new_id', 'new_matches', 'no_ids', 'taggies', 'netties', 'entangled'];
 
 // Loop through all the slide files and output the title slides with slide number
 const findTitleSlides = () => {
@@ -131,7 +134,52 @@ const extractSealsFromSlides = () => {
     categories.forEach(category => {
         getImagesForTheCategory(category);
     });
+
+    removeDuplicateImagesFromFolders();
+    reSyncMinio();
+
+    return { processed: slideSeals };
 };
+
+const removeDuplicateImagesFromFolders = () => {
+    foundSeals.forEach(seal => {
+        const folder = imageOutputDir + seal.toLowerCase() + '/originals';
+        findDuplicateFiles(
+            folder,
+            {
+                silent: true,
+                md5SkipSaving: true,
+                md5SkipLoading: true
+            },
+            function(err, groups) {
+                if (err) return console.error(err);
+                groups.forEach(function(group) {
+                    // loop starts at index 1
+                    // first item will be untouched
+                    for (var i = 1; i < group.length; i++) {
+                        fs.unlinkSync(group[i].path);
+                    }
+                });
+            }
+        );
+
+        //Now re-number the images in the folder so they are 1-*
+        const files = fs.readdirSync(folder);
+
+        files.forEach((file, index) => {
+            const filePath = file.split('.');
+            const ext = filePath[filePath.length - 1];
+            const formattedNum = index + 1;
+
+            const existingFilePath = path.join(folder, file);
+            const newFilePath = path.join(folder, seal + '-' + formattedNum.toString() + '.' + ext);
+
+            fs.renameSync(existingFilePath, newFilePath);
+        });
+    });
+};
+
+const reSyncMinio = () => {};
 
 const getImagesForTheCategory = ({ title, start, end }) => {
     // no_ids = create folder for unknowns, put all images in 'new-ids' folder for future matching
@@ -186,11 +234,13 @@ const parseKnownSealSlides = ({ start, end }) => {
                 masterSealName = SealMappings[seal];
                 console.log('For', seal, 'master seal ID is actually', masterSealName);
             }
+            slideSeals[seal] = masterSealName;
+            foundSeals.push(masterSealName);
 
             // Create a folder for the seal
-            const folder = imageOutputDir + masterSealName;
+            const folder = imageOutputDir + masterSealName.toLowerCase() + '/originals';
             if (!fs.existsSync(folder)) {
-                fs.mkdirSync(folder);
+                fs.mkdirSync(folder, { recursive: true });
             } else {
                 const files = fs.readdirSync(folder);
                 index = files.length + 1;

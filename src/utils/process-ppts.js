@@ -32,21 +32,14 @@ const renameSlides = () => {
     });
 };
 
-const processPPTs = file => {
+const processPPT = file => {
     // Save file to pptInputDir
     const filename = new Date().getTime();
     console.log('New filename', filename);
     fs.writeFileSync(`${config.pptInputDir}${filename}.pptx`, file);
 
-    const files = fs.readdirSync(config.pptInputDir);
-    files.forEach(savedFile => {
-        const name = savedFile.split('.')[0];
-        console.log('About to process', name);
-        processPPT(name);
-    });
-};
+    console.log('About to process', filename);
 
-const processPPT = filename => {
     // Remove anything in processing Dir before starting
     rimraf.sync(config.pptProcessingDir);
     fs.mkdirSync(config.pptProcessingDir);
@@ -56,9 +49,11 @@ const processPPT = filename => {
     unzip(filename);
 
     renameSlides();
-    processImages.extractSealsFromSlides();
+    const foundSeals = processImages.extractSealsFromSlides();
 
     fs.renameSync(`${config.pptInputDir + filename}.pptx`, `${config.pptProcessedDir + filename}.pptx`);
+
+    return foundSeals;
 };
 
 const zip = filename => {
@@ -72,5 +67,5 @@ const unzip = filename => {
 };
 
 module.exports = {
-    processPPTs
+    processPPT
 };
