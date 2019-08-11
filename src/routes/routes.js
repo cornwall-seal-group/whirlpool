@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const AblumController = require('../controllers/album-controller');
+const AlbumController = require('../controllers/album-controller');
 
 module.exports = [
     {
@@ -14,7 +14,6 @@ module.exports = [
                 maxBytes: 1048570000
             }
         },
-
-        handler: AblumController.processAlbum
+        handler: AlbumController.processAlbum
     }
 ];
