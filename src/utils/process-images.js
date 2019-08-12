@@ -7,6 +7,7 @@ const config = require('config');
 const fs = require('fs');
 const parser = require('xml2json');
 const findDuplicateFiles = require('find-duplicate-files');
+const { execSync } = require('child_process');
 const path = require('path');
 const baseSlideDir = `${config.pptProcessingDir}ppt/slides/`;
 const imageOutputDir = config.sealImagesOutputDir;
