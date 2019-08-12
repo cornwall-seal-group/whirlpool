@@ -5,6 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "export NODE_ENV=dev && nodemon src/index.js",
+    "prod": "export NODE_ENV=prod && nodemon src/index.js",
     "process-mappings": "node -e 'require(\"./mappings.js\").processMappings()'"
   },
   "dependencies": {
