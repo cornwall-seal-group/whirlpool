@@ -182,7 +182,7 @@ const removeDuplicateImagesFromFolders = () => {
 
 const reSyncMinio = () => {
     if (config.syncMinio) {
-        execSync(`${config.serverRoot}./mc mirror ${config.sealImagesOutputDir} myminio`);
+        execSync(`${config.serverRoot}./mc mirror ${config.sealImagesOutputDir} myminio --overwrite`);
     }
 };
 
