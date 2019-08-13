@@ -239,6 +239,9 @@ const parseKnownSealSlides = ({ start, end }) => {
                 masterSealName = SealMappings[seal];
                 console.log('For', seal, 'master seal ID is actually', masterSealName);
             }
+            if (masterSealName.length < 3) {
+                masterSealName = masterSealName + '_';
+            }
             slideSeals[seal] = masterSealName;
             foundSeals.push(masterSealName);
 
