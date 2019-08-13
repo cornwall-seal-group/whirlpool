@@ -248,9 +248,9 @@ const parseKnownSealSlides = ({ start, end }) => {
             slideSeals[seal] = masterSealName;
             foundSeals.push(masterSealName);
 
-            let minioFolderName = masterSealName;
+            let minioFolderName = masterSealName.toLowerCase();
             if (minioFolderName.length < 3) {
-                minioFolderName = minioFolderName.toLowerCase() + SHORT_SEAL_NAME_POSTFIX;
+                minioFolderName = minioFolderName + SHORT_SEAL_NAME_POSTFIX;
             }
 
             // Create a folder for the seal
