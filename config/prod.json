@@ -1,4 +1,5 @@
 {
+    "serverRoot": "./",
     "pptInputDir": "./input/",
     "pptProcessedDir": "./processed/",
     "pptOutputDir": "./output/",
