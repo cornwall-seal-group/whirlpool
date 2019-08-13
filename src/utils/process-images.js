@@ -145,11 +145,11 @@ const extractSealsFromSlides = () => {
 
 const removeDuplicateImagesFromFolders = () => {
     foundSeals.forEach(seal => {
-        let folder = seal.toLowerCase();
+        let sealFolder = seal.toLowerCase();
         if (seal.length < 3) {
-            folder = seal + SHORT_SEAL_NAME_POSTFIX;
+            sealFolder = seal + SHORT_SEAL_NAME_POSTFIX;
         }
-        const folder = imageOutputDir + folder + '/originals';
+        const folder = imageOutputDir + sealFolder + '/originals';
         findDuplicateFiles(
             folder,
             {
