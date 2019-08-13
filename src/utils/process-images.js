@@ -147,7 +147,7 @@ const removeDuplicateImagesFromFolders = () => {
     foundSeals.forEach(seal => {
         let sealFolder = seal.toLowerCase();
         if (seal.length < 3) {
-            sealFolder = seal + SHORT_SEAL_NAME_POSTFIX;
+            sealFolder = sealFolder + SHORT_SEAL_NAME_POSTFIX;
         }
         const folder = imageOutputDir + sealFolder + '/originals';
         findDuplicateFiles(
