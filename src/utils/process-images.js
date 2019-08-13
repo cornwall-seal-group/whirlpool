@@ -239,14 +239,17 @@ const parseKnownSealSlides = ({ start, end }) => {
                 masterSealName = SealMappings[seal];
                 console.log('For', seal, 'master seal ID is actually', masterSealName);
             }
-            if (masterSealName.length < 3) {
-                masterSealName = masterSealName + '-';
-            }
+
             slideSeals[seal] = masterSealName;
             foundSeals.push(masterSealName);
 
+            let minioFolderName = masterSealName;
+            if (minioFolderName.length < 3) {
+                minioFolderName = minioFolderName.toLowerCase() + '-x';
+            }
+
             // Create a folder for the seal
-            const folder = imageOutputDir + masterSealName.toLowerCase() + '/originals';
+            const folder = imageOutputDir + minioFolderName + '/originals';
             if (!fs.existsSync(folder)) {
                 fs.mkdirSync(folder, { recursive: true });
             } else {
