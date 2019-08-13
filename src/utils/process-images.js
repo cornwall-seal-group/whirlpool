@@ -13,6 +13,7 @@ const baseSlideDir = `${config.pptProcessingDir}ppt/slides/`;
 const imageOutputDir = config.sealImagesOutputDir;
 
 const knownTitles = ['re_ids', 'new_ids', 'new_id', 'new_matches', 'no_ids', 'taggies', 'netties', 'entangled'];
+const SHORT_SEAL_NAME_POSTFIX = '-x';
 
 let foundSeals = [];
 let slideSeals = {};
@@ -144,7 +145,11 @@ const extractSealsFromSlides = () => {
 
 const removeDuplicateImagesFromFolders = () => {
     foundSeals.forEach(seal => {
-        const folder = imageOutputDir + seal.toLowerCase() + '/originals';
+        let folder = seal.toLowerCase();
+        if (seal.length < 3) {
+            folder = seal + SHORT_SEAL_NAME_POSTFIX;
+        }
+        const folder = imageOutputDir + folder + '/originals';
         findDuplicateFiles(
             folder,
             {
@@ -245,7 +250,7 @@ const parseKnownSealSlides = ({ start, end }) => {
 
             let minioFolderName = masterSealName;
             if (minioFolderName.length < 3) {
-                minioFolderName = minioFolderName.toLowerCase() + '-x';
+                minioFolderName = minioFolderName.toLowerCase() + SHORT_SEAL_NAME_POSTFIX;
             }
 
             // Create a folder for the seal
