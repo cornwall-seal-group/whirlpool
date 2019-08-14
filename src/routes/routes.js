@@ -11,7 +11,8 @@ module.exports = [
             tags: ['api', 'v1', 'album', 'process'],
 
             payload: {
-                maxBytes: 1048570000
+                maxBytes: 1048570000,
+                output: 'stream'
             }
         },
         handler: AlbumController.processAlbum
