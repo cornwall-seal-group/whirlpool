@@ -34,9 +34,9 @@ const renameSlides = () => {
 
 const processPPT = file => {
     const filename = file.hapi.filename;
-
+    const data = file._data;
     console.log('Saving', filename);
-    fs.writeFileSync(`${config.pptInputDir}${filename}.pptx`, file);
+    fs.writeFileSync(`${config.pptInputDir}${filename}`, data);
 
     console.log('About to process', filename);
 
@@ -54,7 +54,7 @@ const processPPT = file => {
     movePPTAfterProcess(filename);
 
     const folder = config.sealImagesOutputDir + '/albums/';
-    fs.writeFileSync(folder + filename.replace('.pptx', '.json'), foundSeals);
+    fs.writeFileSync(folder + filename.replace('.pptx', '.json'), JSON.stringify(foundSeals));
 
     return foundSeals;
 };
@@ -65,16 +65,21 @@ const movePPTAfterProcess = filename => {
         fs.mkdirSync(folder, { recursive: true });
     }
 
-    fs.renameSync(`${config.pptInputDir + filename}.pptx`, `${folder + filename}.pptx`);
+    fs.renameSync(`${config.pptInputDir + filename}`, `${folder + filename}`);
 };
 const zip = filename => {
-    console.log('About to zip', filename);
-    execSync(`cd ${config.pptInputDir} && cp '${filename}.pptx' .${config.pptProcessingDir}${filename}.zip`);
+    console.log(
+        'About to zip',
+        `cd ${config.pptInputDir} && cp '${filename}' '.${config.pptProcessingDir}${filename.replace('.pptx', '.zip')}'`
+    );
+    execSync(
+        `cd ${config.pptInputDir} && cp '${filename}' '.${config.pptProcessingDir}${filename.replace('.pptx', '.zip')}'`
+    );
 };
 
 const unzip = filename => {
-    console.log('About to unzip', filename);
-    execSync(`cd ${config.pptProcessingDir} && unzip ${filename}.zip`);
+    console.log('About to unzip', `cd ${config.pptProcessingDir} && unzip '${filename.replace('.pptx', '.zip')}'`);
+    execSync(`cd ${config.pptProcessingDir} && unzip '${filename.replace('.pptx', '.zip')}'`);
 };
 
 module.exports = {
