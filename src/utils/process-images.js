@@ -276,6 +276,10 @@ const parseKnownSealSlides = ({ start, end }) => {
             const seal = sealNameInSlide[1].trim();
             console.log('Slide', i, 'Seal name', seal);
             let masterSealName = seal;
+
+            if (masterSealName.indexOf('JF') === 0 || masterSealName.indexOf('JM') === 0) {
+                masterSealName = 'P' + masterSealName;
+            }
             const mappedSeal = SealMappings[seal];
             if (mappedSeal && mappedSeal !== masterSealName) {
                 masterSealName = SealMappings[seal];

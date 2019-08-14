@@ -33,9 +33,9 @@ const renameSlides = () => {
 };
 
 const processPPT = file => {
-    // Save file to pptInputDir
-    const filename = new Date().getTime();
-    console.log('New filename', filename);
+    const filename = file.hapi.filename;
+
+    console.log('Saving', filename);
     fs.writeFileSync(`${config.pptInputDir}${filename}.pptx`, file);
 
     console.log('About to process', filename);
@@ -51,11 +51,22 @@ const processPPT = file => {
     renameSlides();
     const foundSeals = processImages.extractSealsFromSlides();
 
-    fs.renameSync(`${config.pptInputDir + filename}.pptx`, `${config.pptProcessedDir + filename}.pptx`);
+    movePPTAfterProcess(filename);
+
+    const folder = config.sealImagesOutputDir + '/albums/';
+    fs.writeFileSync(folder + filename.replace('.pptx', '.json'), foundSeals);
 
     return foundSeals;
 };
 
+const movePPTAfterProcess = filename => {
+    const folder = config.sealImagesOutputDir + '/albums/';
+    if (!fs.existsSync(folder)) {
+        fs.mkdirSync(folder, { recursive: true });
+    }
+
+    fs.renameSync(`${config.pptInputDir + filename}.pptx`, `${folder + filename}.pptx`);
+};
 const zip = filename => {
     console.log('About to zip', filename);
     execSync(`cd ${config.pptInputDir} && cp '${filename}.pptx' .${config.pptProcessingDir}${filename}.zip`);
