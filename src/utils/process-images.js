@@ -2,18 +2,15 @@
 Images Script
 
 */
-const SealMappings = require('../../seal-mappings/mappings.json');
 const config = require('config');
 const fs = require('fs');
 const parser = require('xml2json');
-const findDuplicateFiles = require('find-duplicate-files');
-const { execSync } = require('child_process');
-const path = require('path');
 const baseSlideDir = `${config.pptProcessingDir}ppt/slides/`;
 const imageOutputDir = config.sealImagesOutputDir;
-
+const { getMasterSealName, getSealFolder, createSealImageName } = require('./seal-naming');
+const { reSyncMinio } = require('./minio-helper');
+const { removeDuplicateImagesFromFolders, removeDuplicateNoIdImages } = require('./image-helpers');
 const knownTitles = ['re_ids', 'new_ids', 'new_id', 'new_matches', 'no_ids', 'taggies', 'netties', 'entangled'];
-const SHORT_SEAL_NAME_POSTFIX = '-x';
 
 let foundSeals = [];
 let slideSeals = {};
@@ -137,95 +134,11 @@ const extractSealsFromSlides = () => {
         getImagesForTheCategory(category);
     });
 
-    removeDuplicateImagesFromFolders();
+    removeDuplicateImagesFromFolders(foundSeals);
     removeDuplicateNoIdImages();
     reSyncMinio();
 
     return { processed: slideSeals };
-};
-
-const removeDuplicateImagesFromFolders = () => {
-    foundSeals.forEach(seal => {
-        let sealFolder = seal.toLowerCase();
-        if (seal.length < 3) {
-            sealFolder = sealFolder + SHORT_SEAL_NAME_POSTFIX;
-        }
-        const folder = imageOutputDir + sealFolder + '/originals';
-        findDuplicateFiles(
-            folder,
-            {
-                silent: true,
-                md5SkipSaving: true,
-                md5SkipLoading: true
-            },
-            function(err, groups) {
-                if (err) return console.error(err);
-                groups.forEach(function(group) {
-                    // loop starts at index 1
-                    // first item will be untouched
-                    for (var i = 1; i < group.length; i++) {
-                        fs.unlinkSync(group[i].path);
-                    }
-                });
-            }
-        );
-
-        //Now re-number the images in the folder so they are 1-*
-        const files = fs.readdirSync(folder);
-
-        files.forEach((file, index) => {
-            const filePath = file.split('.');
-            const ext = filePath[filePath.length - 1];
-            const formattedNum = index + 1;
-
-            const existingFilePath = path.join(folder, file);
-            const newFilePath = path.join(folder, seal + '-' + formattedNum.toString() + '.' + ext);
-
-            fs.renameSync(existingFilePath, newFilePath);
-        });
-    });
-};
-
-const removeDuplicateNoIdImages = () => {
-    const folder = imageOutputDir + 'no-ids';
-    findDuplicateFiles(
-        folder,
-        {
-            silent: true,
-            md5SkipSaving: true,
-            md5SkipLoading: true
-        },
-        function(err, groups) {
-            if (err) return console.error(err);
-            groups.forEach(function(group) {
-                // loop starts at index 1
-                // first item will be untouched
-                for (var i = 1; i < group.length; i++) {
-                    fs.unlinkSync(group[i].path);
-                }
-            });
-        }
-    );
-
-    //Now re-number the images in the folder so they are 1-*
-    const files = fs.readdirSync(folder);
-
-    files.forEach((file, index) => {
-        const filePath = file.split('.');
-        const ext = filePath[filePath.length - 1];
-        const formattedNum = index + 1;
-
-        const existingFilePath = path.join(folder, file);
-        const newFilePath = path.join(folder, 'new-' + formattedNum.toString() + '.' + ext);
-
-        fs.renameSync(existingFilePath, newFilePath);
-    });
-};
-
-const reSyncMinio = () => {
-    if (config.syncMinio) {
-        execSync(`${config.serverRoot}./mc mirror ${config.sealImagesOutputDir} myminio --overwrite`);
-    }
 };
 
 const getImagesForTheCategory = ({ title, start, end }) => {
@@ -275,24 +188,13 @@ const parseKnownSealSlides = ({ start, end }) => {
         if (sealNameInSlide) {
             const seal = sealNameInSlide[1].trim();
             console.log('Slide', i, 'Seal name', seal);
-            let masterSealName = seal;
 
-            if (masterSealName.indexOf('JF') === 0 || masterSealName.indexOf('JM') === 0) {
-                masterSealName = 'P' + masterSealName;
-            }
-            const mappedSeal = SealMappings[seal];
-            if (mappedSeal && mappedSeal !== masterSealName) {
-                masterSealName = SealMappings[seal];
-                console.log('For', seal, 'master seal ID is actually', masterSealName);
-            }
+            const masterSealName = getMasterSealName(seal);
 
             slideSeals[seal] = masterSealName;
             foundSeals.push(masterSealName);
 
-            let minioFolderName = masterSealName.toLowerCase();
-            if (minioFolderName.length < 3) {
-                minioFolderName = minioFolderName + SHORT_SEAL_NAME_POSTFIX;
-            }
+            const minioFolderName = getSealFolder(minioFolderName);
 
             // Create a folder for the seal
             const folder = imageOutputDir + minioFolderName + '/originals';
@@ -320,9 +222,7 @@ const parseSlideMetaForImages = ({ folder, id, i, index }) => {
         const file = `${config.pptProcessingDir}ppt/media/${image}`;
 
         if (fs.existsSync(file)) {
-            const extDot = file.lastIndexOf('.');
-            const ext = file.substr(extDot);
-            const renamedImage = `${folder}/${id}-${index}${ext}`;
+            const renamedImage = createSealImageName({ folder, file, id, index });
             fs.renameSync(file, renamedImage);
             console.log(i, index, id, file, renamedImage);
 

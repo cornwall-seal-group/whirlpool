@@ -5,5 +5,6 @@ processed/
 extracted-images/
 processed/
 processing/
+zipfiles/
 .DS_Store
 package-lock.json

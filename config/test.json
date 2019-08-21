@@ -1,5 +1,6 @@
 {
     "serverRoot": "./",
+    "zipDir": "./zipfiles/",
     "pptInputDir": "./input/",
     "pptProcessedDir": "./processed/",
     "pptOutputDir": "./output/",
