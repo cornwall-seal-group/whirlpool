@@ -54,6 +54,10 @@ const process = file => {
     // Unzip contents to new folder
     unzip({ filename, zippedFilename });
 
+    //Remove the __macosx folder if it exists
+    const removeMacFolderCommand = `rm -rf ${config.zipDir}${filename}/__macosx/`;
+    execSync(removeMacFolderCommand);
+
     // Loop through each folder found, match against the master seal name and copy to minio folder
     const uploadedSeals = saveUploadedSealImages(filename);
     const data = {
