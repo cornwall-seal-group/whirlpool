@@ -58,6 +58,9 @@ const process = file => {
     const removeMacFolderCommand = `rm -rf ${config.zipDir}${filename}/__macosx/`;
     execSync(removeMacFolderCommand);
 
+    const removeMACFolderCommand = `rm -rf ${config.zipDir}${filename}/__MACOSX/`;
+    execSync(removeMACFolderCommand);
+
     // Loop through each folder found, match against the master seal name and copy to minio folder
     const uploadedSeals = saveUploadedSealImages(filename);
     const data = {
