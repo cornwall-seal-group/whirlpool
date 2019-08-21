@@ -1,4 +1,3 @@
-const Joi = require('joi');
 const AlbumController = require('../controllers/album-controller');
 const ZipController = require('../controllers/zipfile-controller');
 
@@ -28,7 +27,7 @@ module.exports = [
             tags: ['api', 'v1', 'zipfile', 'process'],
 
             payload: {
-                maxBytes: 1048570000,
+                maxBytes: 2147483648,
                 output: 'stream'
             }
         },
