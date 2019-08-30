@@ -56,7 +56,8 @@ const processZipOfPPTs = file => {
 
     const ppts = fs.readdirSync(config.pptInputDir);
     ppts.forEach(ppt => {
-        sealsFoundAcrossAllPPTs.push(processPPT(ppt));
+        const seals = processPPT(ppt);
+        sealsFoundAcrossAllPPTs.push({ ...seals, ppt });
     });
 
     return sealsFoundAcrossAllPPTs;
