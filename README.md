@@ -21,3 +21,12 @@ It will do the following:
 - compare the found title slides and process the slides between accordingly:
   - for `No Ids`, the images are added to the no-ids folder
   - for all other types of header we know of (listed above) we find the seal name in the slide and put all the images from that slide in a folder with the seals name
+
+
+## Running with forever
+
+To run the app using forever run:
+
+```
+export NODE_ENV=prod && nohup forever start -c "node src/index.js" ./
+```
