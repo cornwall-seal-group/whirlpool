@@ -7,15 +7,28 @@ module.exports = [
         path: '/api/v1/album/process',
         config: {
             description: 'Allows you to submit a album to be processed',
-            notes: 'Allows you to submit a PPT album that will extract images of the seals ',
+            notes: 'Allows you to submit a PPT album that will extract images of the seals',
             tags: ['api', 'v1', 'album', 'process'],
-
             payload: {
                 maxBytes: 1048570000,
                 output: 'stream'
             }
         },
         handler: AlbumController.processAlbum
+    },
+    {
+        method: 'POST',
+        path: '/api/v1/album/process/bulk',
+        config: {
+            description: 'Allows you to submit multiple albums to be processed',
+            notes: 'Allows you to submit a ZIP file containing multiple albums of seal sightings',
+            tags: ['api', 'v1', 'album', 'process'],
+            payload: {
+                maxBytes: 2147483648,
+                output: 'stream'
+            }
+        },
+        handler: AlbumController.processBulkAlbum
     },
     {
         method: 'POST',

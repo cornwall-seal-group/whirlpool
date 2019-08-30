@@ -32,12 +32,46 @@ const renameSlides = () => {
     });
 };
 
-const processPPT = file => {
+const processZipOfPPTs = file => {
     const filename = file.hapi.filename;
     const data = file._data;
     console.log('Saving', filename);
     fs.writeFileSync(`${config.pptInputDir}${filename}`, data);
 
+    console.log('About to process ZIP', filename);
+    const sealsFoundAcrossAllPPTs = [];
+
+    unzipRealZipFile(filename);
+    deleteZipFile(filename);
+
+    //Remove the __macosx folder if it exists
+    const removeMacFolderCommand = `rm -rf ${config.pptInputDir}__macosx/`;
+    execSync(removeMacFolderCommand);
+
+    const removeMACFolderCommand = `rm -rf ${config.pptInputDir}__MACOSX/`;
+    execSync(removeMACFolderCommand);
+
+    const removeDsStore = `rm -rf ${config.pptInputDir}.DS_Store`;
+    execSync(removeDsStore);
+
+    const ppts = fs.readdirSync(config.pptInputDir);
+    ppts.forEach(ppt => {
+        sealsFoundAcrossAllPPTs.push(processPPT(ppt));
+    });
+
+    return sealsFoundAcrossAllPPTs;
+};
+
+const saveFileAndProcessPPT = file => {
+    const filename = file.hapi.filename;
+    const data = file._data;
+    console.log('Saving', filename);
+    fs.writeFileSync(`${config.pptInputDir}${filename}`, data);
+
+    return processPPT(filename);
+};
+
+const processPPT = filename => {
     console.log('About to process', filename);
 
     // Remove anything in processing Dir before starting
@@ -68,20 +102,33 @@ const movePPTAfterProcess = filename => {
     fs.renameSync(`${config.pptInputDir + filename}`, `${folder + filename}`);
 };
 const zip = filename => {
-    console.log(
-        'About to zip',
-        `cd ${config.pptInputDir} && cp '${filename}' '.${config.pptProcessingDir}${filename.replace('.pptx', '.zip')}'`
-    );
-    execSync(
-        `cd ${config.pptInputDir} && cp '${filename}' '.${config.pptProcessingDir}${filename.replace('.pptx', '.zip')}'`
-    );
+    const command = `cd ${config.pptInputDir} && cp '${filename}' '.${config.pptProcessingDir}${filename.replace(
+        '.pptx',
+        '.zip'
+    )}'`;
+    console.log('About to zip', command);
+    execSync(command);
 };
 
 const unzip = filename => {
-    console.log('About to unzip', `cd ${config.pptProcessingDir} && unzip '${filename.replace('.pptx', '.zip')}'`);
-    execSync(`cd ${config.pptProcessingDir} && unzip '${filename.replace('.pptx', '.zip')}'`);
+    const command = `cd ${config.pptProcessingDir} && unzip '${filename.replace('.pptx', '.zip')}'`;
+    console.log('About to unzip', command);
+    execSync(command);
+};
+
+const unzipRealZipFile = filename => {
+    const command = `cd ${config.pptInputDir} && unzip ${filename}`;
+    console.log('About to unzip', command);
+    execSync(command);
+};
+
+const deleteZipFile = filename => {
+    const command = `cd ${config.pptInputDir} && rm ${filename}`;
+    console.log(`About to delete zip file ${filename}`, command);
+    execSync(command);
 };
 
 module.exports = {
-    processPPT
+    saveFileAndProcessPPT,
+    processZipOfPPTs
 };

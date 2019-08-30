@@ -194,7 +194,7 @@ const parseKnownSealSlides = ({ start, end }) => {
             slideSeals[seal] = masterSealName;
             foundSeals.push(masterSealName);
 
-            const minioFolderName = getSealFolder(minioFolderName);
+            const minioFolderName = getSealFolder(masterSealName);
 
             // Create a folder for the seal
             const folder = imageOutputDir + minioFolderName + '/originals';

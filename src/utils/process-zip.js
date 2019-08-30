@@ -95,8 +95,11 @@ const unzip = ({ filename, zippedFilename }) => {
     const command = `cd ${config.zipDir} && unzip ${zippedFilename} -d ./${filename}`;
     console.log('About to unzip', command);
     execSync(command);
+
+    return `${config.zipDir}${filename}`;
 };
 
 module.exports = {
-    process
+    process,
+    unzip
 };
