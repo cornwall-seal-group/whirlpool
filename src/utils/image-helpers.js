@@ -1,13 +1,41 @@
-/*
-Images Script
-
-*/
-const config = require('config');
 const fs = require('fs');
+const { execSync } = require('child_process');
 const findDuplicateFiles = require('find-duplicate-files');
 const { getSealFolder } = require('./seal-naming');
 const path = require('path');
-const imageOutputDir = config.sealImagesOutputDir;
+const imageOutputDir = './extracted-images/';
+
+const unsupportedImageTypes = ['tiff', 'tif'];
+const unsupportedFiles = ['emf', 'wdp'];
+
+const handleUnsupportedImageTypes = foundSeals => {
+    foundSeals.forEach(seal => {
+        const sealFolder = getSealFolder(seal);
+        const folder = imageOutputDir + sealFolder + '/originals';
+        console.log('Checking for unsupported images types in', folder);
+
+        const files = fs.readdirSync(folder);
+
+        files.forEach(file => {
+            const filePath = file.split('.');
+            const ext = filePath[filePath.length - 1];
+            const existingFilePath = path.join(folder, file);
+
+            // Remove file if it is unsupported
+            if (unsupportedFiles.includes(ext)) {
+                console.log(file, `unsupported type ${ext}, removing`);
+                fs.unlinkSync(existingFilePath);
+            }
+
+            // Rename file if it is unsupported type
+            if (unsupportedImageTypes.includes(ext)) {
+                console.log(file, 'unsupported file type, renaming to jpg');
+                const newFilePath = folder + filePath + '.jpg';
+                execSync(`convert ${existingFilePath} ${newFilePath}`);
+            }
+        });
+    });
+};
 
 const removeDuplicateImagesFromFolders = foundSeals => {
     foundSeals.forEach(seal => {
@@ -87,5 +115,6 @@ const removeDuplicateNoIdImages = () => {
 
 module.exports = {
     removeDuplicateImagesFromFolders,
-    removeDuplicateNoIdImages
+    removeDuplicateNoIdImages,
+    handleUnsupportedImageTypes
 };
