@@ -34,6 +34,8 @@ const handleUnsupportedImageTypes = foundSeals => {
                 const newFilePath = folder + filePath + '.jpg';
                 console.log('About to run', `convert ${existingFilePath} ${newFilePath}`);
                 execSync(`convert ${existingFilePath} ${newFilePath}`);
+                // Remove old file
+                fs.unlinkSync(existingFilePath);
             }
         });
     });
