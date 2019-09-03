@@ -32,6 +32,7 @@ const handleUnsupportedImageTypes = foundSeals => {
             if (unsupportedImageTypes.includes(ext)) {
                 console.log(file, 'unsupported file type, renaming to jpg');
                 const newFilePath = folder + filePath + '.jpg';
+                console.log('About to run', `convert ${existingFilePath} ${newFilePath}`);
                 execSync(`convert ${existingFilePath} ${newFilePath}`);
             }
         });
