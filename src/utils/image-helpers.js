@@ -1,9 +1,10 @@
 const fs = require('fs');
+const config = require('config');
 const { execSync } = require('child_process');
 const findDuplicateFiles = require('find-duplicate-files');
 const { getSealFolder } = require('./seal-naming');
 const path = require('path');
-const imageOutputDir = './extracted-images/';
+const imageOutputDir = config.sealImagesOutputDir;
 
 const unsupportedImageTypes = ['tiff', 'tif'];
 const unsupportedFiles = ['emf', 'wdp'];
