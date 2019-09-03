@@ -104,16 +104,16 @@ const movePPTAfterProcess = filename => {
     fs.renameSync(`${config.pptInputDir + filename}`, `${folder + filename}`);
 };
 const zip = filename => {
-    const command = `cd ${config.pptInputDir} && cp '${filename}' '.${config.pptProcessingDir}${filename.replace(
+    const command = `cd ${config.pptInputDir} && cp ${filename} .${config.pptProcessingDir}${filename.replace(
         '.pptx',
         '.zip'
-    )}'`;
+    )}`;
     console.log('About to zip', command);
     execSync(command);
 };
 
 const unzip = filename => {
-    const command = `cd ${config.pptProcessingDir} && unzip '${filename.replace('.pptx', '.zip')}'`;
+    const command = `cd ${config.pptProcessingDir} && unzip ${filename.replace('.pptx', '.zip')}`;
     console.log('About to unzip', command);
     execSync(command);
 };
