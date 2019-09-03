@@ -56,7 +56,10 @@ const processZipOfPPTs = file => {
 
     const ppts = fs.readdirSync(config.pptInputDir);
     ppts.forEach(ppt => {
-        const name = ppt.replace(/\s+/g, '-');
+        const name = ppt
+            .replace(/\s+/g, '-')
+            .replace(/\(/g, '-')
+            .replace(/\)/g, '-');
         fs.renameSync(`${config.pptInputDir + ppt}`, `${config.pptInputDir + name}`);
         const seals = processPPT(name);
         sealsFoundAcrossAllPPTs.push({ ...seals, ppt: name });
@@ -66,7 +69,10 @@ const processZipOfPPTs = file => {
 };
 
 const saveFileAndProcessPPT = file => {
-    const filename = file.hapi.filename.replace(/\s+/g, '-');
+    const filename = file.hapi.filename
+        .replace(/\s+/g, '-')
+        .replace(/\(/g, '-')
+        .replace(/\)/g, '-');
     const data = file._data;
     console.log('Saving', filename);
     fs.writeFileSync(`${config.pptInputDir}${filename}`, data);
