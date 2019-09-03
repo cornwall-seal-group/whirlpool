@@ -9,7 +9,11 @@ const baseSlideDir = `${config.pptProcessingDir}ppt/slides/`;
 const imageOutputDir = config.sealImagesOutputDir;
 const { getMasterSealName, getSealFolder, createSealImageName } = require('./seal-naming');
 const { reSyncMinio } = require('./minio-helper');
-const { removeDuplicateImagesFromFolders, removeDuplicateNoIdImages } = require('./image-helpers');
+const {
+    removeDuplicateImagesFromFolders,
+    removeDuplicateNoIdImages,
+    handleUnsupportedImageTypes
+} = require('./image-helpers');
 const knownTitles = ['re_ids', 'new_ids', 'new_id', 'new_matches', 'no_ids', 'taggies', 'netties', 'entangled'];
 
 let foundSeals = [];
@@ -134,6 +138,7 @@ const extractSealsFromSlides = () => {
         getImagesForTheCategory(category);
     });
 
+    handleUnsupportedImageTypes(foundSeals);
     removeDuplicateImagesFromFolders(foundSeals);
     removeDuplicateNoIdImages();
     reSyncMinio();
