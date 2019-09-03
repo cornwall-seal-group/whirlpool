@@ -33,7 +33,7 @@ const renameSlides = () => {
 };
 
 const processZipOfPPTs = file => {
-    const filename = file.hapi.filename;
+    const filename = file.hapi.filename.replace(/\s+/g, '-');
     const data = file._data;
     console.log('Saving', filename);
     fs.writeFileSync(`${config.pptInputDir}${filename}`, data);
@@ -64,7 +64,7 @@ const processZipOfPPTs = file => {
 };
 
 const saveFileAndProcessPPT = file => {
-    const filename = file.hapi.filename;
+    const filename = file.hapi.filename.replace(/\s+/g, '-');
     const data = file._data;
     console.log('Saving', filename);
     fs.writeFileSync(`${config.pptInputDir}${filename}`, data);
