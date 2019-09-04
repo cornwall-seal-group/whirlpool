@@ -8,5 +8,5 @@
     "sealImagesOutputDir": "./extracted-images/",
     "Port": 4010,
     "syncMinio": false,
-    "apiKey": ""
+    "apiKey": "$2b$10$ngc.uVk2cDeVDYzWdY4bjOWF71OiUNxLwr5xTBxrzyioox7M0NTI2"
 }

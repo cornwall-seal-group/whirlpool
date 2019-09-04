@@ -66,6 +66,7 @@ const removeDuplicateImagesFromFolders = foundSeals => {
                 groups.forEach(function(group) {
                     //Sort the files first to ensure number sequence remains
                     group = group.sort((a, b) => {
+                        console.log('comparing', a, b);
                         var nameA = parseInt(a.path.split(`${sealFolder}/originals/${seal}-`)[1].split('.')[0]);
                         var nameB = parseInt(b.path.split(`${sealFolder}/originals/${seal}-`)[1].split('.')[0]);
                         if (nameA < nameB) {
