@@ -60,10 +60,10 @@ const removeDuplicateImagesFromFolders = foundSeals => {
                 md5SkipSaving: true,
                 md5SkipLoading: true
             },
-            function(err, groups) {
+            (err, groups) => {
                 if (err) return console.error(err);
 
-                groups.forEach(function(group) {
+                groups.forEach(group => {
                     //Sort the files first to ensure number sequence remains
                     group = group.sort((a, b) => {
                         console.log('comparing', a, b);
@@ -98,9 +98,9 @@ const removeDuplicateNoIdImages = () => {
             md5SkipSaving: true,
             md5SkipLoading: true
         },
-        function(err, groups) {
+        (err, groups) => {
             if (err) return console.error(err);
-            groups.forEach(function(group) {
+            groups.forEach(group => {
                 //Sort the files first to ensure number sequence remains
                 group = group.sort((a, b) => {
                     var nameA = parseInt(a.path.split('no-ids/originals/no-')[1].split('.')[0]);
