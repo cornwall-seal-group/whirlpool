@@ -11,7 +11,7 @@ const unsupportedFiles = ['emf', 'wdp'];
 
 const removeUnsupportedTypesForSeal = ({ seal, hasOriginals = true }) => {
     const sealFolder = getSealFolder(seal);
-    const folder = imageOutputDir + sealFolder + hasOriginals ? '/originals' : '';
+    const folder = imageOutputDir + sealFolder + (hasOriginals ? '/originals' : '');
     console.log('Checking for unsupported images types in', folder);
 
     const files = fs.readdirSync(folder);
