@@ -87,7 +87,7 @@ const removeDuplicateImagesFromFolders = foundSeals => {
 };
 
 const removeDuplicateNoIdImages = () => {
-    const folder = imageOutputDir + 'no-ids';
+    const folder = imageOutputDir + 'no-ids/originals';
     findDuplicateFiles(
         folder,
         {
