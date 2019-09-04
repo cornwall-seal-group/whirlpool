@@ -167,7 +167,7 @@ const parseNewSealSlides = ({ start, end }) => {
     let index = 1;
     for (let i = start; i < end; i++) {
         // Create a folder for the new Ids
-        const folder = `${imageOutputDir}no-ids`;
+        const folder = `${imageOutputDir}no-ids/originals`;
         if (!fs.existsSync(folder)) {
             fs.mkdirSync(folder);
         } else {
