@@ -138,7 +138,7 @@ const extractSealsFromSlides = () => {
         getImagesForTheCategory(category);
     });
 
-    handleUnsupportedImageTypes(foundSeals);
+    //handleUnsupportedImageTypes(foundSeals);
     removeDuplicateImagesFromFolders(foundSeals);
     removeDuplicateNoIdImages();
     reSyncMinio();
