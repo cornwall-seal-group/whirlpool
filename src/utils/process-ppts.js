@@ -3,7 +3,7 @@ const config = require('config');
 const fs = require('fs');
 const rimraf = require('rimraf');
 const { execSync } = require('child_process');
-const processImages = require('./process-images.js');
+const { extractSealsFromSlides } = require('./process-images.js');
 
 const baseSlideDir = `${config.pptProcessingDir}ppt/slides/`;
 
@@ -94,7 +94,7 @@ const processPPT = filename => {
     unzip(filename);
 
     renameSlides();
-    const foundSeals = processImages.extractSealsFromSlides();
+    const foundSeals = extractSealsFromSlides();
 
     movePPTAfterProcess(filename);
 
