@@ -42,7 +42,7 @@ const processZipOfPPTs = file => {
     const sealsFoundAcrossAllPPTs = [];
 
     unzipRealZipFile(filename);
-    deleteZipFile(filename);
+    moveZipFile(filename);
 
     //Remove the __macosx folder if it exists
     const removeMacFolderCommand = `rm -rf ${config.pptInputDir}__macosx/`;
@@ -131,9 +131,9 @@ const unzipRealZipFile = filename => {
     execSync(command);
 };
 
-const deleteZipFile = filename => {
-    const command = `cd ${config.pptInputDir} && rm ${filename}`;
-    console.log(`About to delete zip file ${filename}`, command);
+const moveZipFile = filename => {
+    const command = `cd ${config.pptInputDir} && mv ${filename} .${config.zipDir}`;
+    console.log(`About to move zip file ${filename}`, command);
     execSync(command);
 };
 

@@ -32,12 +32,17 @@ const processBulkAlbum = request => {
     // unzip
     // loop through all files in unzipped folder and process ppt
     // move ppts to output folder
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
         Bcrypt.compare(apiKey, config.apiKey).then(match => {
             if (match) {
-                resolve(ProcessPPTS.processZipOfPPTs(file));
+                try {
+                    const processed = ProcessPPTS.processZipOfPPTs(file);
+                    resolve(processed);
+                } catch (e) {
+                    reject(e);
+                }
             } else {
-                resolve(Boom.unauthorized('Incorrect API Key'));
+                reject(Boom.unauthorized('Incorrect API Key'));
             }
         });
     });
