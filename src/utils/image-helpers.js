@@ -18,6 +18,7 @@ const removeUnsupportedTypesForSeal = ({ seal, hasOriginals = true }) => {
 
     files.forEach(file => {
         const filePath = file.split('.');
+        const filename = filePath[0];
         const ext = filePath[filePath.length - 1];
         const existingFilePath = path.join(folder, file);
 
@@ -30,9 +31,10 @@ const removeUnsupportedTypesForSeal = ({ seal, hasOriginals = true }) => {
         // Rename file if it is unsupported type
         if (unsupportedImageTypes.includes(ext)) {
             console.log(file, 'unsupported file type, renaming to jpg');
-            const newFilePath = folder + filePath + '.jpg';
-            console.log('About to run', `convert ${existingFilePath} ${newFilePath}`);
-            execSync(`convert ${existingFilePath} ${newFilePath}`);
+            const newFilePath = path.join(folder, filename + '.jpg');
+            const command = `convert ${existingFilePath} ${newFilePath}`;
+            console.log('About to run', command);
+            execSync(command);
             // Remove old file
             fs.unlinkSync(existingFilePath);
         }
@@ -60,7 +62,20 @@ const removeDuplicateImagesFromFolders = foundSeals => {
             },
             function(err, groups) {
                 if (err) return console.error(err);
+
                 groups.forEach(function(group) {
+                    //Sort the files first to ensure number sequence remains
+                    group = group.sort((a, b) => {
+                        var nameA = parseInt(a.path.split(`${sealFolder}/originals/${seal}-`)[1].split('.')[0]);
+                        var nameB = parseInt(b.path.split(`${sealFolder}/originals/${seal}-`)[1].split('.')[0]);
+                        if (nameA < nameB) {
+                            return -1;
+                        }
+                        if (nameA > nameB) {
+                            return 1;
+                        }
+                    });
+
                     // loop starts at index 1
                     // first item will be untouched
                     for (var i = 1; i < group.length; i++) {
@@ -69,25 +84,12 @@ const removeDuplicateImagesFromFolders = foundSeals => {
                 });
             }
         );
-
-        //Now re-number the images in the folder so they are 1-*
-        const files = fs.readdirSync(folder);
-
-        files.forEach((file, index) => {
-            const filePath = file.split('.');
-            const ext = filePath[filePath.length - 1];
-            const formattedNum = index + 1;
-
-            const existingFilePath = path.join(folder, file);
-            const newFilePath = path.join(folder, seal + '-' + formattedNum.toString() + '.' + ext);
-
-            fs.renameSync(existingFilePath, newFilePath);
-        });
     });
 };
 
 const removeDuplicateNoIdImages = () => {
     const folder = imageOutputDir + 'no-ids/originals';
+
     findDuplicateFiles(
         folder,
         {
@@ -98,6 +100,18 @@ const removeDuplicateNoIdImages = () => {
         function(err, groups) {
             if (err) return console.error(err);
             groups.forEach(function(group) {
+                //Sort the files first to ensure number sequence remains
+                group = group.sort((a, b) => {
+                    var nameA = parseInt(a.path.split('no-ids/originals/no-')[1].split('.')[0]);
+                    var nameB = parseInt(b.path.split('no-ids/originals/no-')[1].split('.')[0]);
+                    if (nameA < nameB) {
+                        return -1;
+                    }
+                    if (nameA > nameB) {
+                        return 1;
+                    }
+                });
+
                 // loop starts at index 1
                 // first item will be untouched
                 for (var i = 1; i < group.length; i++) {
@@ -106,20 +120,6 @@ const removeDuplicateNoIdImages = () => {
             });
         }
     );
-
-    //Now re-number the images in the folder so they are 1-*
-    const files = fs.readdirSync(folder);
-
-    files.forEach((file, index) => {
-        const filePath = file.split('.');
-        const ext = filePath[filePath.length - 1];
-        const formattedNum = index + 1;
-
-        const existingFilePath = path.join(folder, file);
-        const newFilePath = path.join(folder, 'new-' + formattedNum.toString() + '.' + ext);
-
-        fs.renameSync(existingFilePath, newFilePath);
-    });
 };
 
 module.exports = {

@@ -8,7 +8,6 @@ const parser = require('xml2json');
 const baseSlideDir = `${config.pptProcessingDir}ppt/slides/`;
 const imageOutputDir = config.sealImagesOutputDir;
 const { getMasterSealName, getSealFolder, createSealImageName } = require('./seal-naming');
-const { reSyncMinio } = require('./minio-helper');
 const {
     removeDuplicateImagesFromFolders,
     removeDuplicateNoIdImages,
@@ -95,6 +94,9 @@ const findTitleSlides = () => {
 // in between. Then process each slide xml file to extract the images referenced
 // in them. Fetch them and save them to the output folders
 const extractSealsFromSlides = () => {
+    slideSeals = {};
+    foundSeals = [];
+
     let previousTitle = {};
     const categories = [];
     const files = fs.readdirSync(baseSlideDir);
@@ -138,18 +140,18 @@ const extractSealsFromSlides = () => {
         getImagesForTheCategory(category);
     });
 
-    //handleUnsupportedImageTypes(foundSeals);
+    handleUnsupportedImageTypes(foundSeals);
     removeDuplicateImagesFromFolders(foundSeals);
     removeDuplicateNoIdImages();
-    reSyncMinio();
 
     return { processed: slideSeals };
 };
 
 const getImagesForTheCategory = ({ title, start, end }) => {
-    // no_ids = create folder for unknowns, put all images in 'new-ids' folder for future matching
+    // no_ids = create folder for unknowns, put all images in 'no-ids' folder for future matching
     if (title === 'no_ids') {
-        parseNewSealSlides({ start, end });
+        console.warn('Parsing no_ids, from slides', start, 'to', end);
+        parseNoIdSealSlides({ start, end });
     } else if (knownTitles.includes(title)) {
         // re_ids, new_ids, taggies, netties, new_matches
 
@@ -163,9 +165,10 @@ const getImagesForTheCategory = ({ title, start, end }) => {
     }
 };
 
-const parseNewSealSlides = ({ start, end }) => {
+const parseNoIdSealSlides = ({ start, end }) => {
     let index = 1;
-    for (let i = start; i < end; i++) {
+    let totalNoIds = 0;
+    for (let i = start; i <= end; i++) {
         // Create a folder for the new Ids
         const folder = `${imageOutputDir}no-ids/originals`;
         if (!fs.existsSync(folder)) {
@@ -175,19 +178,20 @@ const parseNewSealSlides = ({ start, end }) => {
             index = files.length + 1;
         }
 
-        parseSlideMetaForImages({ folder, id: 'new', i, index });
+        const count = parseSlideMetaForImages({ folder, id: 'no', i, index });
+        totalNoIds += count;
     }
+
+    addSealToTotals({ masterSealName: 'no-ids', seal: 'no-ids', count: totalNoIds });
 };
 
 const parseKnownSealSlides = ({ start, end }) => {
     // Read each slide res file and read the images found
-    for (let i = start; i < end; i++) {
+    for (let i = start; i <= end; i++) {
         let index = 1;
 
         const slide = fs.readFileSync(`${baseSlideDir}slide${convertNumber(i)}.xml`, 'utf8');
 
-        // const sealNameRegex = new RegExp(/<a:t>([A-Z]*[0-9]*?)(\s)?<\/a:t>/g);
-        // const sealNameRegex = new RegExp(/<a:t>((\s)?([A-Z]*(\d+)?)(\s)?)/g);
         const sealNameRegex = new RegExp(/<a:t>((\s)?([A-Z]{1,5}[\d]{1,5})(\s)?)/g);
         const sealNameInSlide = sealNameRegex.exec(slide);
         if (sealNameInSlide) {
@@ -196,7 +200,6 @@ const parseKnownSealSlides = ({ start, end }) => {
 
             const masterSealName = getMasterSealName(seal);
 
-            slideSeals[seal] = masterSealName;
             foundSeals.push(masterSealName);
 
             const minioFolderName = getSealFolder(masterSealName);
@@ -210,14 +213,30 @@ const parseKnownSealSlides = ({ start, end }) => {
                 index = files.length + 1;
             }
 
-            parseSlideMetaForImages({ folder, id: masterSealName, i, index });
+            const count = parseSlideMetaForImages({ folder, id: masterSealName, i, index });
+            addSealToTotals({ masterSealName, seal, count });
         }
+    }
+};
+
+const addSealToTotals = ({ masterSealName, seal, count }) => {
+    if (masterSealName in slideSeals) {
+        if (masterSealName === 'no-ids') {
+            slideSeals[masterSealName]['no-ids'] = slideSeals[masterSealName]['no-ids'] + count;
+        } else {
+            const existingCount = slideSeals[masterSealName][seal];
+            slideSeals[masterSealName][seal] = existingCount + count;
+        }
+    } else {
+        slideSeals[masterSealName] = {};
+        slideSeals[masterSealName][seal] = count;
     }
 };
 
 const parseSlideMetaForImages = ({ folder, id, i, index }) => {
     const slideData = fs.readFileSync(`${baseSlideDir}slide.xml/slide${i}.xml.rels`, 'utf8');
     const regex = /Target="..\/media([\s\S]*?)"/g;
+    let imagesInSlide = 0;
     while ((m = regex.exec(slideData)) !== null) {
         // This is necessary to avoid infinite loops with zero-width matches
         if (m.index === regex.lastIndex) {
@@ -225,15 +244,16 @@ const parseSlideMetaForImages = ({ folder, id, i, index }) => {
         }
         const image = m[0].replace('Target="../media/', '').replace('"', '');
         const file = `${config.pptProcessingDir}ppt/media/${image}`;
-
         if (fs.existsSync(file)) {
             const renamedImage = createSealImageName({ folder, file, id, index });
             fs.renameSync(file, renamedImage);
             console.log(i, index, id, file, renamedImage);
 
+            imagesInSlide += 1;
             index += 1;
         }
     }
+    return imagesInSlide;
 };
 
 module.exports = {
