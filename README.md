@@ -4,15 +4,17 @@ This project parses PPTs in the `input/` folder and moves the image found into t
 
 It works by looking for the known title slides; either:
 
-`"re_ids", "new_ids", "new_matches", "no_ids", "taggies", "netties", "entangled"`
+`"re_ids", "new_ids", "new_matches", "new_match_up", "no_ids", "taggies", "netties", "entangled"`
+
+## Running the application
+
+It is a node REST API, you can run it using `npm run start` which will use the config from `config/dev.json`
+
+See `src/routes.js` for the different routes available
 
 ## Process
 
-Put your Powerpoint presentations in the `input/` folder, then run the following command:
-
-`npm run process-ppts`
-
-It will do the following:
+For an individual PPT album it will do the following:
 
 - zip you PPT
 - unzip it, to extract the slide XML and images
