@@ -28,10 +28,10 @@ const getSealFolder = seal => {
     return name.toLowerCase();
 };
 
-const createSealImageName = ({ folder, file, id, index }) => {
+const createSealImageName = ({ imagePrefix = new Date().getTime(), folder, file, id, index, date }) => {
     const extDot = file.lastIndexOf('.');
     const ext = file.substr(extDot);
-    return `${folder}/${id}-${index}${ext}`;
+    return `${folder}/${imagePrefix}-${id}-${date}${index}${ext}`;
 };
 
 module.exports = {

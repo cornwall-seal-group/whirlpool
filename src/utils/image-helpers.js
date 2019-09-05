@@ -5,6 +5,7 @@ const findDuplicateFiles = require('find-duplicate-files');
 const { getSealFolder } = require('./seal-naming');
 const path = require('path');
 const imageOutputDir = config.sealImagesOutputDir;
+const { convertImageTypes } = config;
 
 const unsupportedImageTypes = ['tiff', 'tif'];
 const unsupportedFiles = ['emf', 'wdp'];
@@ -12,7 +13,6 @@ const unsupportedFiles = ['emf', 'wdp'];
 const removeUnsupportedTypesForSeal = ({ seal, hasOriginals = true }) => {
     const sealFolder = getSealFolder(seal);
     const folder = imageOutputDir + sealFolder + (hasOriginals ? '/originals' : '');
-    console.log('Checking for unsupported images types in', folder);
 
     const files = fs.readdirSync(folder);
 
@@ -33,14 +33,17 @@ const removeUnsupportedTypesForSeal = ({ seal, hasOriginals = true }) => {
             console.log(file, 'unsupported file type, renaming to jpg');
             const newFilePath = path.join(folder, filename + '.jpg');
             const command = `convert ${existingFilePath} ${newFilePath}`;
-            console.log('About to run', command);
-            execSync(command);
-            // Remove old file
-            fs.unlinkSync(existingFilePath);
+            console.log('About to run', command, convertImageTypes);
+            if (convertImageTypes) {
+                execSync(command);
+                // Remove old file
+                fs.unlinkSync(existingFilePath);
+            }
         }
     });
 };
 const handleUnsupportedImageTypes = foundSeals => {
+    console.log('Checking for unsupported images types');
     foundSeals.forEach(seal => {
         removeUnsupportedTypesForSeal({ seal });
     });
@@ -49,10 +52,11 @@ const handleUnsupportedImageTypes = foundSeals => {
 };
 
 const removeDuplicateImagesFromFolders = foundSeals => {
+    console.log('Removing duplicates');
     foundSeals.forEach(seal => {
         const sealFolder = getSealFolder(seal);
         const folder = imageOutputDir + sealFolder + '/originals';
-        console.log('Removing duplicates from', folder);
+
         findDuplicateFiles(
             folder,
             {
@@ -66,9 +70,8 @@ const removeDuplicateImagesFromFolders = foundSeals => {
                 groups.forEach(group => {
                     //Sort the files first to ensure number sequence remains
                     group = group.sort((a, b) => {
-                        console.log('comparing', a, b);
-                        var nameA = parseInt(a.path.split(`${sealFolder}/originals/${seal}-`)[1].split('.')[0]);
-                        var nameB = parseInt(b.path.split(`${sealFolder}/originals/${seal}-`)[1].split('.')[0]);
+                        var nameA = parseInt(a.path.split(`${seal}-`)[1].split('.')[0]);
+                        var nameB = parseInt(b.path.split(`${seal}-`)[1].split('.')[0]);
                         if (nameA < nameB) {
                             return -1;
                         }
@@ -103,8 +106,8 @@ const removeDuplicateNoIdImages = () => {
             groups.forEach(group => {
                 //Sort the files first to ensure number sequence remains
                 group = group.sort((a, b) => {
-                    var nameA = parseInt(a.path.split('no-ids/originals/no-')[1].split('.')[0]);
-                    var nameB = parseInt(b.path.split('no-ids/originals/no-')[1].split('.')[0]);
+                    var nameA = parseInt(a.path.split('-no-')[1].split('.')[0]);
+                    var nameB = parseInt(b.path.split('-no-')[1].split('.')[0]);
                     if (nameA < nameB) {
                         return -1;
                     }

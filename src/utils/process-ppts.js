@@ -94,7 +94,9 @@ const processPPT = filename => {
     unzip(filename);
 
     renameSlides();
-    const foundSeals = extractSealsFromSlides();
+
+    const imagePrefix = createImagePrefix(filename);
+    const foundSeals = extractSealsFromSlides(imagePrefix);
 
     movePPTAfterProcess(filename);
 
@@ -102,6 +104,13 @@ const processPPT = filename => {
     fs.writeFileSync(folder + filename.replace('.pptx', '.json'), JSON.stringify(foundSeals));
 
     return foundSeals;
+};
+
+const createImagePrefix = filename => {
+    const name = filename.replace('pptx', '');
+    const regex = new RegExp(/\b[a-zA-Z]/g);
+    const id = name.match(regex).join('');
+    return name.substr(0, 10) + '_' + id;
 };
 
 const movePPTAfterProcess = filename => {

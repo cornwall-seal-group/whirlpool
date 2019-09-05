@@ -3,7 +3,6 @@ const fs = require('fs');
 const { execSync } = require('child_process');
 const { getMasterSealName, getSealFolder, createSealImageName } = require('./seal-naming');
 const { removeDuplicateImagesFromFolders } = require('./image-helpers');
-const { reSyncMinio } = require('./minio-helper');
 
 const saveUploadedSealImages = zipFolder => {
     let uploadedSeals = {};
@@ -61,7 +60,7 @@ const process = file => {
     const removeMACFolderCommand = `rm -rf ${config.zipDir}${filename}/__MACOSX/`;
     execSync(removeMACFolderCommand);
 
-    // Loop through each folder found, match against the master seal name and copy to minio folder
+    // Loop through each folder found, match against the master seal name and copy to output folder
     const uploadedSeals = saveUploadedSealImages(filename);
     const data = {
         zippedFilename,
@@ -72,7 +71,6 @@ const process = file => {
     createJsonOfData({ filename, data });
     console.log(Object.keys(uploadedSeals));
     removeDuplicateImagesFromFolders(Object.keys(uploadedSeals));
-    reSyncMinio();
 
     return data;
 };

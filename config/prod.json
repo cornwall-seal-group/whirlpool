@@ -7,6 +7,6 @@
     "pptProcessingDir": "./processing/",
     "sealImagesOutputDir": "~/minio-images/",
     "Port": 4010,
-    "syncMinio": true,
+    "convertImageTypes": true,
     "apiKey": ""
 }

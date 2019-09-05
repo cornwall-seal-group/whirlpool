@@ -13,10 +13,23 @@ const {
     removeDuplicateNoIdImages,
     handleUnsupportedImageTypes
 } = require('./image-helpers');
-const knownTitles = ['re_ids', 'new_ids', 'new_id', 'new_matches', 'no_ids', 'taggies', 'netties', 'entangled'];
+const knownTitles = [
+    're_ids',
+    're_ids',
+    'new_ids',
+    'new_id',
+    'new_matches',
+    'new_match_up',
+    'no_ids',
+    'taggies',
+    'netties',
+    'entangled'
+];
 
 let foundSeals = [];
 let slideSeals = {};
+let imagePrefix = '';
+
 const convertNumber = number => {
     number = number.toString();
     let formattedNum = number;
@@ -70,6 +83,7 @@ const findTitleSlides = () => {
                     if (data.match(regex).length === 1) {
                         const foundTitle = regex.exec(data)[1];
                         const title = foundTitle
+                            .trim()
                             .toLowerCase()
                             .replace(/\s+/g, '_')
                             .replace(/-/g, '_');
@@ -93,7 +107,8 @@ const findTitleSlides = () => {
 // Loop through all the slide files, find the titles and work out the slides
 // in between. Then process each slide xml file to extract the images referenced
 // in them. Fetch them and save them to the output folders
-const extractSealsFromSlides = () => {
+const extractSealsFromSlides = prefix => {
+    imagePrefix = prefix;
     slideSeals = {};
     foundSeals = [];
 
@@ -111,6 +126,7 @@ const extractSealsFromSlides = () => {
                     if (data.match(regex).length === 1) {
                         const foundTitle = regex.exec(data)[1];
                         const title = foundTitle
+                            .trim()
                             .toLowerCase()
                             .replace(/\s+/g, '_')
                             .replace(/-/g, '_');
@@ -166,8 +182,9 @@ const getImagesForTheCategory = ({ title, start, end }) => {
 };
 
 const parseNoIdSealSlides = ({ start, end }) => {
-    let index = 1;
     let totalNoIds = 0;
+    let index = 1;
+    let date = new Date().getTime();
     for (let i = start; i <= end; i++) {
         // Create a folder for the new Ids
         const folder = `${imageOutputDir}no-ids/originals`;
@@ -178,7 +195,7 @@ const parseNoIdSealSlides = ({ start, end }) => {
             index = files.length + 1;
         }
 
-        const count = parseSlideMetaForImages({ folder, id: 'no', i, index });
+        const count = parseSlideMetaForImages({ folder, id: 'no', i, index, date });
         totalNoIds += count;
     }
 
@@ -187,9 +204,9 @@ const parseNoIdSealSlides = ({ start, end }) => {
 
 const parseKnownSealSlides = ({ start, end }) => {
     // Read each slide res file and read the images found
+    let index = 1;
+    let date = new Date().getTime();
     for (let i = start; i <= end; i++) {
-        let index = 1;
-
         const slide = fs.readFileSync(`${baseSlideDir}slide${convertNumber(i)}.xml`, 'utf8');
 
         const sealNameRegex = new RegExp(/<a:t>((\s)?([A-Z]{1,5}[\d]{1,5})(\s)?)/g);
@@ -213,7 +230,7 @@ const parseKnownSealSlides = ({ start, end }) => {
                 index = files.length + 1;
             }
 
-            const count = parseSlideMetaForImages({ folder, id: masterSealName, i, index });
+            const count = parseSlideMetaForImages({ folder, id: masterSealName, i, index, date });
             addSealToTotals({ masterSealName, seal, count });
         }
     }
@@ -233,10 +250,11 @@ const addSealToTotals = ({ masterSealName, seal, count }) => {
     }
 };
 
-const parseSlideMetaForImages = ({ folder, id, i, index }) => {
+const parseSlideMetaForImages = ({ folder, id, i, index, date }) => {
     const slideData = fs.readFileSync(`${baseSlideDir}slide.xml/slide${i}.xml.rels`, 'utf8');
     const regex = /Target="..\/media([\s\S]*?)"/g;
     let imagesInSlide = 0;
+
     while ((m = regex.exec(slideData)) !== null) {
         // This is necessary to avoid infinite loops with zero-width matches
         if (m.index === regex.lastIndex) {
@@ -245,7 +263,7 @@ const parseSlideMetaForImages = ({ folder, id, i, index }) => {
         const image = m[0].replace('Target="../media/', '').replace('"', '');
         const file = `${config.pptProcessingDir}ppt/media/${image}`;
         if (fs.existsSync(file)) {
-            const renamedImage = createSealImageName({ folder, file, id, index });
+            const renamedImage = createSealImageName({ imagePrefix, folder, file, id, index, date });
             fs.renameSync(file, renamedImage);
             console.log(i, index, id, file, renamedImage);
 
