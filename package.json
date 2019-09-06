@@ -6,7 +6,8 @@
   "scripts": {
     "start": "export NODE_ENV=dev && nodemon src/index.js",
     "prod": "export NODE_ENV=prod && nodemon src/index.js",
-    "process-mappings": "node -e 'require(\"./mappings.js\").processMappings()'"
+    "process-mappings": "node -e 'require(\"./mappings.js\").processMappings()'",
+    "process-aliases": "node -e 'require(\"./aliases.js\").processAliases()'"
   },
   "dependencies": {
     "@hapi/boom": "^7.4.2",
