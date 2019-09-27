@@ -14,7 +14,7 @@ const {
     handleUnsupportedImageTypes
 } = require('./image-helpers');
 const knownTitles = [
-    're_ids',
+    're_id',
     're_ids',
     'new_ids',
     'new_id',
@@ -22,8 +22,20 @@ const knownTitles = [
     'new_match_up',
     'no_ids',
     'taggies',
+    'taggie',
     'netties',
-    'entangled'
+    'nettie',
+    'entangled',
+    'injured',
+    'snotty',
+    'mutton_cove',
+    'rocks_off_mutton',
+    'rocks_off_mutton_cove',
+    'godrevy_island',
+    'kynance_cove',
+    'hudder_cove',
+    'hells_mouth',
+    'castle_giver'
 ];
 
 let foundSeals = [];
