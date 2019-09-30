@@ -54,10 +54,10 @@ const process = file => {
     unzip({ filename, zippedFilename });
 
     //Remove the __macosx folder if it exists
-    const removeMacFolderCommand = `rm -rf ${config.zipDir}${filename}/__macosx/`;
+    const removeMacFolderCommand = `sudo rm -rf ${config.zipDir}${filename}/__macosx/`;
     execSync(removeMacFolderCommand);
 
-    const removeMACFolderCommand = `rm -rf ${config.zipDir}${filename}/__MACOSX/`;
+    const removeMACFolderCommand = `sudo rm -rf ${config.zipDir}${filename}/__MACOSX/`;
     execSync(removeMACFolderCommand);
 
     // Loop through each folder found, match against the master seal name and copy to output folder
@@ -90,7 +90,7 @@ const moveZipAfterProcess = filename => {
 };
 
 const unzip = ({ filename, zippedFilename }) => {
-    const command = `cd ${config.zipDir} && unzip ${zippedFilename} -d ./${filename}`;
+    const command = `cd ${config.zipDir} && sudo unzip ${zippedFilename} -d ./${filename}`;
     console.log('About to unzip', command);
     execSync(command);
 

@@ -32,7 +32,7 @@ const removeUnsupportedTypesForSeal = ({ seal, hasOriginals = true }) => {
         if (unsupportedImageTypes.includes(ext)) {
             console.log(file, 'unsupported file type, renaming to jpg');
             const newFilePath = path.join(folder, filename + '.jpg');
-            const command = `convert ${existingFilePath} ${newFilePath}`;
+            const command = `sudo convert ${existingFilePath} ${newFilePath}`;
             console.log('About to run', command, convertImageTypes);
             if (convertImageTypes) {
                 execSync(command);
