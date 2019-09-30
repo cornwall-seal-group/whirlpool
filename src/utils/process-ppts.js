@@ -45,13 +45,13 @@ const processZipOfPPTs = file => {
     moveZipFile(filename);
 
     //Remove the __macosx folder if it exists
-    const removeMacFolderCommand = `sudo rm -rf ${config.pptInputDir}__macosx/`;
+    const removeMacFolderCommand = `rm -rf ${config.pptInputDir}__macosx/`;
     execSync(removeMacFolderCommand);
 
-    const removeMACFolderCommand = `sudo rm -rf ${config.pptInputDir}__MACOSX/`;
+    const removeMACFolderCommand = `rm -rf ${config.pptInputDir}__MACOSX/`;
     execSync(removeMACFolderCommand);
 
-    const removeDsStore = `sudo rm -rf ${config.pptInputDir}.DS_Store`;
+    const removeDsStore = `rm -rf ${config.pptInputDir}.DS_Store`;
     execSync(removeDsStore);
 
     const ppts = fs.readdirSync(config.pptInputDir);
@@ -131,19 +131,19 @@ const zip = filename => {
 };
 
 const unzip = filename => {
-    const command = `cd ${config.pptProcessingDir} && sudo unzip ${filename.replace('.pptx', '.zip')}`;
+    const command = `cd ${config.pptProcessingDir} && unzip ${filename.replace('.pptx', '.zip')}`;
     console.log('About to unzip', command);
     execSync(command);
 };
 
 const unzipRealZipFile = filename => {
-    const command = `cd ${config.pptInputDir} && sudo unzip ${filename}`;
+    const command = `cd ${config.pptInputDir} && unzip ${filename}`;
     console.log('About to unzip', command);
     execSync(command);
 };
 
 const moveZipFile = filename => {
-    const command = `cd ${config.pptInputDir} && sudo mv ${filename} .${config.zipDir}`;
+    const command = `cd ${config.pptInputDir} && mv ${filename} .${config.zipDir}`;
     console.log(`About to move zip file ${filename}`, command);
     execSync(command);
 };
