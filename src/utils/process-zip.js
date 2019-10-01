@@ -86,7 +86,7 @@ const moveZipAfterProcess = filename => {
         fs.mkdirSync(folder, { recursive: true });
     }
     const zip = `${config.zipDir + filename}.zip`;
-    fs.copyFileSync(`${config.zipDir + filename}.zip`, `${folder + filename}`);
+    fs.copyFileSync(zip, `${folder + filename}`);
     fs.unlinkSync(zip);
 };
 
