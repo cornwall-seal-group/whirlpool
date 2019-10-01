@@ -118,8 +118,9 @@ const movePPTAfterProcess = filename => {
     if (!fs.existsSync(folder)) {
         fs.mkdirSync(folder, { recursive: true });
     }
-
-    fs.renameSync(`${config.pptInputDir + filename}`, `${folder + filename}`);
+    const pptInInputDir = `${config.pptInputDir + filename}`;
+    fs.copyFileSync(pptInInputDir, `${folder + filename}`);
+    fs.unlinkSync(pptInInputDir);
 };
 const zip = filename => {
     const command = `cd ${config.pptInputDir} && cp ${filename} .${config.pptProcessingDir}${filename.replace(
