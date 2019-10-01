@@ -284,7 +284,7 @@ const parseSlideMetaForImages = ({ folder, id, i, index, date }) => {
         const file = `${config.pptProcessingDir}ppt/media/${image}`;
         if (fs.existsSync(file)) {
             const renamedImage = createSealImageName({ imagePrefix, folder, file, id, index, date });
-            fs.renameSync(file, renamedImage);
+            fs.copyFileSync(file, renamedImage);
             console.log(i, index, id, file, renamedImage);
 
             imagesInSlide += 1;
