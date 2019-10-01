@@ -145,7 +145,7 @@ const unzipRealZipFile = filename => {
 
 const moveZipFile = filename => {
     const folder = config.sealImagesOutputDir + 'zipfiles/';
-    const command = `cd ${config.pptInputDir} && mv ${filename} .${folder}`;
+    const command = `cd ${config.pptInputDir} && mv ${filename} ${folder}`;
     console.log(`About to move zip file ${filename}`, command);
     execSync(command);
 };
