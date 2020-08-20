@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@hapi/boom": "^7.4.2",
-    "bcrypt": "^3.0.6",
+    "bcrypt": "^5.0.0",
     "config": "^2.0.1",
     "email-validator": "^2.0.4",
     "find-duplicate-files": "0.0.7",
